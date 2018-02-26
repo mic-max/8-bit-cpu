@@ -1,1 +1,1 @@
-# eeprom-programmer
+# eeprom-writer

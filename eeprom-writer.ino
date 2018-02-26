@@ -6,6 +6,26 @@
 #define WRITE_EN 13
 #define MAX 8192
 
+// contains the 7-segment display outputs for 0-F (cathode)
+byte digits[] = {
+  0b1111110,
+  0b0110000,
+  0b1101101,
+  0b1111001,
+  0b0110011,
+  0b1011011,
+  0b1011111,
+  0b1110000,
+  0b1111111,
+  0b1111011,
+  0b1110111,
+  0b0011111,
+  0b1001110,
+  0b0111101,
+  0b1001111,
+  0b1000111
+};
+
 void setup() {
   // put your setup code here, to run once:
   pinMode(SHIFT_DATA, OUTPUT);
@@ -15,33 +35,31 @@ void setup() {
   pinMode(WRITE_EN, OUTPUT);
   Serial.begin(57600);
 
-  byte segdisp[] = {
-    0b1111110,
-    0b0110000,
-    0b1101101,
-    0b1111001,
-    0b0110011,
-    0b1011011,
-    0b1011111,
-    0b1110000,
-    0b1111111,
-    0b1111011,
-    0b1110111,
-    0b0011111,
-    0b1001110,
-    0b0111101,
-    0b1001111,
-    0b1000111
-  };
-  // writeRangeEEPROM(0, MAX, 0x00);
-  writeArrayEEPROM(0, segdisp, 16);
-  // for(int i = 0; i < MAX; i++) { writeEEPROM(i, i % 256); }
-  // writeRangeEEPROM(0, 256, 0x00);
+  // writeRangeEEPROM(0, MAX, 0x00); // writes all 0's
+  writeDigits();
   printRangeEEPROM(0, 256);
-
 }
 
 void loop() {}
+
+// TODO: make this work with hex later
+void writeDigits() {
+  // magnitude only
+  for(int i = 0; i < 256; i++) {
+    writeEEPROM(i, digits[i % 10]);
+    writeEEPROM(i + 256, digits[(i / 10) % 10]);
+    writeEEPROM(i + 512, digits[(i / 100) % 10]);
+    writeEEPROM(i + 768, 0);
+  }
+  // two's complement
+  for(int i = -128; i < 128; i++) {
+    writeEEPROM((byte)i + 1024, digits[abs(i) % 10]);
+    writeEEPROM((byte)i + 1280, digits[abs(i / 10) % 10]);
+    writeEEPROM((byte)i + 1536, digits[abs(i / 100) % 10]);
+    writeEEPROM((byte)i + 1792, i < 0 ? 0x01 : 0);
+  }
+
+}
 
 void setAddress(int address, bool outputEnable) {
 

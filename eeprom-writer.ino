@@ -5,15 +5,7 @@
 #define EEPROM_D7 12
 #define WRITE_EN 13
 #define MAX 8192
-
-/*
-byte oldDigits[] = {
-  0b1111110, 0b0110000, 0b1101101, 0b1111001,
-  0b0110011, 0b1011011, 0b1011111, 0b1110000,
-  0b1111111, 0b1111011, 0b1110111, 0b0011111,
-  0b1001110, 0b0111101, 0b1001111, 0b1000111
-};
-*/
+#define MINUS 0x80
 
 // contains the 7-segment display outputs for 0-F (cathode)
 byte digits[] = {
@@ -22,6 +14,7 @@ byte digits[] = {
   0xfb, 0xf3, 0xfa, 0xcb,
   0x69, 0x9b, 0xe9, 0xe8
 };
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -39,7 +32,6 @@ void setup() {
 
 void loop() {}
 
-// TODO: make this work with hex later
 void writeDigits() {
   // magnitude only
   for(int i = 0; i < 256; i++) {
@@ -53,9 +45,26 @@ void writeDigits() {
     writeEEPROM((byte)i + 1024, digits[abs(i) % 10]);
     writeEEPROM((byte)i + 1280, digits[abs(i / 10) % 10]);
     writeEEPROM((byte)i + 1536, digits[abs(i / 100) % 10]);
-    writeEEPROM((byte)i + 1792, i < 0 ? 0x01 : 0);
+    writeEEPROM((byte)i + 1792, i < 0 ? MINUS : 0);
+  }
+  // hex
+  for(int i = 0; i < 256; i++) {
+    writeEEPROM(i + 2048, digits[i % 16]); // or use & 0b1111
+    writeEEPROM(i + 2304, digits[(i / 16) % 16]); // or use (i >> 4) & 0b1111
+    writeEEPROM(i + 2560, 0);
+    writeEEPROM(i + 2816, 0);
   }
 
+}
+
+// TODO: needs work
+void writeDigitsRange(int start, int base) {
+  for(int i = start; i < start + 256; i++) {
+    writeEEPROM(i, digits[i % base]);
+    writeEEPROM(i + 256, digits[(i / base) % base]); // i division here should be i-start, keep this in a var?
+    writeEEPROM(i + 512, digits[(i / base / base) % base]);
+    writeEEPROM(i + 768, 0);
+  }
 }
 
 void setAddress(int address, bool outputEnable) {

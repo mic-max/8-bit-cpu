@@ -15,7 +15,7 @@ The code in [`/multiplexed-display`](/multiplexed-display) is for programming an
 
 ### 3. 8-Bit Computer Microcode
 
-The code in [`/microcode-eeprom-programmer`](/microcode-eeprom-programmer) is for programming a pair of EEPROMs to serve as an instruction decoder for an 8-bit breadboard computer.
+The code in [`/microcode`](/microcode-eeprom-programmer) is for programming a pair of EEPROMs to serve as an instruction decoder for an 8-bit breadboard computer.
 
 ### 4. [TODO] Write Program to RAM
 
